@@ -88,6 +88,21 @@
     "friendsofphp/proxy-manager-lts": {
         "version": "v1.0.5"
     },
+    "kerox/oauth2-spotify": {
+        "version": "1.2.0"
+    },
+    "knpuniversity/oauth2-client-bundle": {
+        "version": "1.20",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "1.20",
+            "ref": "cf8a43877d119412c8528ba07da6b5255670f312"
+        },
+        "files": [
+            "config/packages/knpu_oauth2_client.yaml"
+        ]
+    },
     "laminas/laminas-code": {
         "version": "3.4.1"
     },
@@ -97,11 +112,17 @@
     "laminas/laminas-zendframework-bridge": {
         "version": "1.2.0"
     },
+    "league/oauth2-client": {
+        "version": "2.6.0"
+    },
     "monolog/monolog": {
         "version": "2.2.0"
     },
     "nikic/php-parser": {
         "version": "v4.10.5"
+    },
+    "paragonie/random_compat": {
+        "version": "v9.99.100"
     },
     "php": {
         "version": "7.3"
@@ -123,6 +144,9 @@
     },
     "psr/event-dispatcher": {
         "version": "1.0.0"
+    },
+    "psr/http-factory": {
+        "version": "1.0.1"
     },
     "psr/link": {
         "version": "1.0.0"
