@@ -5,20 +5,24 @@ namespace App\Service\Spotify;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use App\Service\Spotify\SpotifyApiException;
-use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 class SpotifyAuth
 {
     protected $spotifyApiTokenUrl;
-    protected $spotifyApiAUthUrl;
+    protected $spotifyApiAuthUrl;
     protected $redirectUri;
     protected $clientId;
     protected $clientSecret;
 
-    public function __construct($spotifyApiTokenUrl, $spotifyApiAUthUrl, $redirectUri, $clientId, $clientSecret)
+    protected $accessToken;
+    protected $refreshToken;
+    protected $expiresAt;
+
+    public function __construct($spotifyApiTokenUrl, $spotifyApiAuthUrl, $redirectUri, $clientId, $clientSecret)
     {
         $this->spotifyApiTokenUrl = $spotifyApiTokenUrl;
-        $this->spotifyApiAUthUrl = $spotifyApiAUthUrl;
+        $this->spotifyApiAuthUrl = $spotifyApiAuthUrl;
         $this->redirectUri = $redirectUri;
         $this->clientId = $clientId;
         $this->clientSecret = $clientSecret;
@@ -31,12 +35,12 @@ class SpotifyAuth
      */
     public function buildAuthorizationUri():string
     {
-        $uri = $this->spotifyApiAUthUrl.
+        $uri = $this->spotifyApiAuthUrl.
             '?response_type=code'.
             '&client_id='.$this->clientId.
             '&redirect_uri='.$this->redirectUri.
             '&state=spotify_auth_state'.
-            '&scope=user-read-private user-read-email user-top-read';
+            '&scope=user-top-read user-read-private user-read-email';
 
         return $uri;
     }
@@ -46,9 +50,14 @@ class SpotifyAuth
      *
      * @return ?string
      */
-    public function generateAccessToken(): ?string
+    public function generateAccessToken(string $state, string $code): ?string
     {
         $client = new Client();
+
+        $session = new Session();
+        $session->start();
+
+        dump($session->get('accessToken'));
 
         try {
             $response = $client->post(
@@ -62,11 +71,13 @@ class SpotifyAuth
                     ],
                     'query' => [
                         'redirect_uri' => 'http://127.0.0.1:8000/login/oauth',
-                        'grant_type' => 'client_credentials',
+                        'grant_type' => 'authorization_code',
+                        'code' => $code
                     ],
                 ]
             );
         } catch (RequestException $e) {
+            dump($e);die;
             $errorResponse = json_decode($e->getResponse()->getBody()->getContents());
             $status = $errorResponse->error->status;
             $message = $errorResponse->error->message;
@@ -82,7 +93,61 @@ class SpotifyAuth
         }
 
         $body = json_decode($response->getBody()->getContents());
+        
+        $this->accessToken = $body->access_token;
+        $this->refreshToken = $body->refresh_token;
+        $this->expiresAt = $body->expires_in;
 
-        return $body->access_token;
+        $session->set('accessToken', $this->accessToken);
+        $session->set('refreshToken', $this->refreshToken);
+        $session->set('expiresAt', $this->expiresAt);
+
+        return true;
+    }
+
+    public function getAccessToken()
+    {
+        return $this->accessToken;
+    }
+
+    public function getRefreshToken()
+    {
+        return $this->refreshToken;
+    }
+
+    public function getExpiresAt()
+    {
+        return $this->expiresAt;
+    }
+
+    public function refreshAccessToken()
+    {
+        $client = new Client();
+
+        $response = $client->post(
+            $this->spotifyApiTokenUrl,
+            [
+                'headers' => [
+                    'Authorization' => 'Basic '.base64_encode($this->clientId.':'.$this->clientSecret),
+                    'Accepts' => 'application/json',
+                    'Content-Type' => 'application/x-www-form-urlencoded',
+                    'Content-Length' => 0,
+                ],
+                'query' => [
+                    'grant_type' => 'refresh_token',
+                    'refresh_token' => $this->refreshToken
+                ],
+            ]
+        );
+
+        $body = json_decode($response->getBody()->getContents());
+
+        // dump($body);die;
+
+        $this->accessToken = $body->access_token;
+        // $this->refreshToken = $body->refresh_token;
+        $this->expiresAt = $body->expires_in;
+
+        return true;
     }
 }

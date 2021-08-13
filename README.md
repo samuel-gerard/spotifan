@@ -22,3 +22,14 @@ Goal is to connect to songkick API to find the concerts/shows of your favorite a
 - easyspotify
 - spotilife
 - spotifun
+
+
+
+### To do :
+- refresh token
+
+
+### Workflow
+- controller fait spotifyRequest->getTopTracks()
+- spotifyRequest check si auth, si non appelle authenticator, si oui fait get request
+- callback sert juste à créer 1er auth

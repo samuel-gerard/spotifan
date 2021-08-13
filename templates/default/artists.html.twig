@@ -2,13 +2,13 @@
 
 {% block title %}Top track!{% endblock %}
 
-
 {% block body %}
 
-<a href="{{ path('artists') }}">Top artists</a>
+<pre>
+    {{ dump(data) }}
+</pre>
 
-
-{% for index,track in data.items %}
+{# {% for index,track in data.items %}
 
     <h2>#{{ index + 1 }} - {{ track.name }}</h2>
 
@@ -18,6 +18,6 @@
         {% endfor %}
     </ul>
 
-{% endfor %}
+{% endfor %} #}
 
 {% endblock %}

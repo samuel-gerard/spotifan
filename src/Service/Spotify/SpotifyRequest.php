@@ -4,29 +4,33 @@ namespace App\Service\Spotify;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class SpotifyRequest
 {
     private const SPOTIFY_API_URL = 'https://api.spotify.com/v1';
 
     protected $accessToken;
+    protected $refreshToken;
 
-    public function __construct(string $accessToken)
+    protected $spotifyAuthenticator;
+
+    public function __construct(SpotifyAuth $spotifyAuthenticator)
     {
-        $this->accessToken = $accessToken;
+        $this->spotifyAuthenticator = $spotifyAuthenticator;
     }
 
     public function get(string $endPoint)
     {
         $client = new Client();
 
+        $this->spotifyAuthenticator->refreshAccessToken();
+
         try {
             $response = $client->get(
                 self::SPOTIFY_API_URL.$endPoint,
                 [
                     'headers' => [
-                        'Authorization' => 'Bearer '.$this->accessToken,
+                        'Authorization' => 'Bearer '.$this->spotifyAuthenticator->getAccessToken(),
                         'Accepts' => 'application/json',
                         'Content-Type' => 'application/json',
                     ],
