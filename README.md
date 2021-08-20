@@ -22,3 +22,39 @@ Goal is to connect to songkick API to find the concerts/shows of your favorite a
 - easyspotify
 - spotilife
 - spotifun
+
+
+# Menu
+- dashboard
+- stats
+- events
+- profile
+- logout
+
+# Dashboard
+Top list =>
+- top 1 track
+- top 1 artist
+- top 1 album
+Events =>
+- Top artist prochains events
+- Prochain events autour de user
+Stats =>
+- 1 ou 2 graph random
+- historique écoute
+
+# Stats
+-
+
+# Events
+Liste event : tous les events // autour de moi :
+- top artists
+- top track
+- top album
+- playlists
+- page avec form pour lien pour event playlist
+
+# Idea
+- page avec lien pour coller url playlist autre user (pour stats & events)
+- enregistrer event participer (db + google calendar ?)
+- exporter + partager RS tops
