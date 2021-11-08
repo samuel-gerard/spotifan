@@ -9,6 +9,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
@@ -65,6 +67,11 @@ class SecurityController extends AbstractController
             // the exact class depends on which provider you're using
             $user = $client->fetchUser();
 
+            dump($client->getAccessToken());die;
+            
+            return $this->render('spotify/me.html.twig', ['user' => $user]);
+            
+
             // do something with all this new power!
 	        // e.g. $name = $user->getFirstName();
             dump($user); die;
@@ -82,5 +89,50 @@ class SecurityController extends AbstractController
     public function logout()
     {
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
+    }
+
+    /**
+     * @Route("/spotify/top-track", name="spotify_top_track")
+     */
+    public function spotifyTopTracks(Request $request, SessionInterface $session)
+    {        
+        $provider = new Spotify([
+            'clientId'     => $this->getParameter('spotify_client_id'),
+            'clientSecret' => $this->getParameter('spotify_client_secret'),
+            'redirect_uri' => 'http://127.0.0.1:8000/connect/spotify/check',
+        ]);
+        
+        if (!isset($_GET['code'])) {
+            // If we don't have an authorization code then get one
+            $authUrl = $provider->getAuthorizationUrl([
+                'scope' => [
+                    Spotify::SCOPE_USER_READ_EMAIL,
+                ],
+                'redirect_uri' => 'http://127.0.0.1:8000/connect/spotify/check',
+                'state' => 'spotify_auth_state'
+            ]);
+            
+            $_SESSION['oauth2state'] = $provider->getState();
+
+            // dump($session->get('oauth2state'));die;
+            
+            // header('Location: ' . $authUrl);
+            // exit;
+
+        // Check given state against previously stored one to mitigate CSRF attack
+        } elseif (empty($_GET['state']) || ($_GET['state'] !== $_SESSION['oauth2state'])) {
+            unset($_SESSION['oauth2state']);
+            echo 'Invalid state.';
+            exit;
+
+        }
+
+        $token = $provider->getAccessToken('authorization_code', [
+            'code' => $_GET['code']
+        ]);
+
+        $session->set('access_token', $token);
+
+        dump($token);die;
     }
 }

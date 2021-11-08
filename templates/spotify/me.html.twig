@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello {{ user.getDisplayName }} !{% endblock %}
+
+{% block body %}
+
+<div class="example-wrapper">
+    <h1>Hello {{ user.getDisplayName }}! ✅</h1>
+
+    <img src="{{ (user.getImages|first).url }}" alt="">
+
+    <div>
+        Email : {{ user.getEmail }}
+
+    </div>
+
+    <a href="{{ path('spotify_top_track') }}">Spotify top track</a>
+    
+</div>
+{% endblock %}
