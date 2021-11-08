@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class DefaultController extends AbstractController
 {
@@ -41,7 +42,7 @@ class DefaultController extends AbstractController
     /** 
      * @Route("/login/oauth", name="callback")
      */
-    public function callback(Request $request): Response
+    public function callback(Request $request, SessionInterface $session): Response
     {
         $code = $request->query->get('code');
         $state = $request->query->get('state');
@@ -58,12 +59,24 @@ class DefaultController extends AbstractController
     /**
      * @Route("/artists", name="artists")
      */
-    public function getTopArtists(): Response
+    public function getTopArtists(Request $request, SessionInterface $session): Response
     {
         $data = $this->spotifyRequest->get('/me/top/artists');
 
         return $this->render('default/artists.html.twig', [
             'data' => $data
         ]);
+    }
+
+    /**
+     * @Route("/logout", name="logout")
+     */
+    public function logout(Request $request, SessionInterface $session): Response
+    {
+        $session->set('accessToken', null);
+        $session->set('refreshToken', null);
+        $session->set('expiresAt', null);
+
+        return $this->render('default/homepage.html.twig');
     }
 }

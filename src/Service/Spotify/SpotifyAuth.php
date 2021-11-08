@@ -57,8 +57,6 @@ class SpotifyAuth
         $session = new Session();
         $session->start();
 
-        dump($session->get('accessToken'));
-
         try {
             $response = $client->post(
                 $this->spotifyApiTokenUrl,
@@ -77,7 +75,6 @@ class SpotifyAuth
                 ]
             );
         } catch (RequestException $e) {
-            dump($e);die;
             $errorResponse = json_decode($e->getResponse()->getBody()->getContents());
             $status = $errorResponse->error->status;
             $message = $errorResponse->error->message;
@@ -142,10 +139,9 @@ class SpotifyAuth
 
         $body = json_decode($response->getBody()->getContents());
 
-        // dump($body);die;
 
         $this->accessToken = $body->access_token;
-        // $this->refreshToken = $body->refresh_token;
+        $this->refreshToken = $body->refresh_token;
         $this->expiresAt = $body->expires_in;
 
         return true;
