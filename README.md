@@ -23,11 +23,8 @@ Goal is to connect to songkick API to find the concerts/shows of your favorite a
 - spotilife
 - spotifun
 
-
-
 ### To do :
 - refresh token
-
 
 ### Workflow
 - controller fait spotifyRequest->getTopTracks()
@@ -38,3 +35,40 @@ Goal is to connect to songkick API to find the concerts/shows of your favorite a
 - [Authorization code flow](https://developer.spotify.com/documentation/general/guides/authorization/code-flow/)
 - [All API Endpoints](https://developer.spotify.com/documentation/web-api/reference/#/)
 - [Spotify project Dashboard](https://developer.spotify.com/dashboard/)
+
+# Pages
+
+## Menu
+- dashboard
+- stats
+- events
+- profile
+- logout
+
+## Dashboard
+Top list =>
+- top 1 track
+- top 1 artist
+- top 1 album
+Events =>
+- Top artist prochains events
+- Prochain events autour de user
+Stats =>
+- 1 ou 2 graph random
+- historique écoute
+
+## Stats
+- @todo
+
+## Events
+Liste event : tous les events // autour de moi :
+- top artists
+- top track
+- top album
+- playlists
+- page avec form pour lien pour event playlist
+
+## Idea
+- page avec lien pour coller url playlist autre user (pour stats & events)
+- enregistrer event participer (db + google calendar ?)
+- exporter + partager RS tops
