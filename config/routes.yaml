@@ -1,7 +1,3 @@
-index:
-   path: /
-   controller: App\Controller\DefaultController::index
-
-redirect:
-   path: /login/oauth
-   controller: App\Controller\DefaultController::callback
+#index:
+#    path: /
+#    controller: App\Controller\DefaultController::index

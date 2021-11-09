@@ -125,10 +125,6 @@ class SpotifyAuth
 
         $body = json_decode($response->getBody()->getContents());
 
-        $this->accessToken = $body->access_token;
-        $this->refreshToken = $body->refresh_token;
-        $this->expiresAt = $body->expires_in;
-
         $this->session->set('accessToken', $body->access_token);
         $this->session->set('refreshToken', $body->refresh_token);
         $this->session->set('expiresAt', $body->expires_in);
