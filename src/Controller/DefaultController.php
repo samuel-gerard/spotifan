@@ -45,13 +45,20 @@ class DefaultController extends AbstractController
     public function callback(Request $request, SessionInterface $session): Response
     {
         $code = $request->query->get('code');
-        $state = $request->query->get('state');
 
-        $this->spotifyAuthenticator->generateAccessToken($state, $code);
+        $this->spotifyAuthenticator->generateAccessToken($code);
 
+        return $this->redirectToRoute('tracks');
+    }
+
+    /**
+     * @Route("/tracks", name="tracks")
+     */
+    public function getTopTracks(Request $request, SessionInterface $session): Response
+    {
         $data = $this->spotifyRequest->get('/me/top/tracks');
 
-        return $this->render('default/index.html.twig', [
+        return $this->render('default/tracks.html.twig', [
             'data' => $data
         ]);
     }
@@ -73,9 +80,7 @@ class DefaultController extends AbstractController
      */
     public function logout(Request $request, SessionInterface $session): Response
     {
-        $session->set('accessToken', null);
-        $session->set('refreshToken', null);
-        $session->set('expiresAt', null);
+        $session->clear();
 
         return $this->render('default/homepage.html.twig');
     }

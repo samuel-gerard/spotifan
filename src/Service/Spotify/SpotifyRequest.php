@@ -4,33 +4,34 @@ namespace App\Service\Spotify;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
-use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class SpotifyRequest
 {
     private const SPOTIFY_API_URL = 'https://api.spotify.com/v1';
 
-    protected $accessToken;
-    protected $refreshToken;
+    protected $client;
+    protected $session;
 
-    protected $spotifyAuthenticator;
-
-    public function __construct(SpotifyAuth $spotifyAuthenticator)
+    public function __construct(SessionInterface $session)
     {
-        $this->spotifyAuthenticator = $spotifyAuthenticator;
+        $this->client = new Client();
+        $this->session = $session;
     }
 
+    /**
+     * Perform GET request on spotify API.
+     */
     public function get(string $endPoint)
     {
-        $client = new Client();
-        $session = new Session();
+        /* TO DO : Check if token is expired. If yes, refresh access token. */
 
         try {
-            $response = $client->get(
+            $response = $this->client->get(
                 self::SPOTIFY_API_URL.$endPoint,
                 [
                     'headers' => [
-                        'Authorization' => 'Bearer '.$session->get('accessToken'),
+                        'Authorization' => 'Bearer '.$this->session->get('accessToken'),
                         'Accepts' => 'application/json',
                         'Content-Type' => 'application/json',
                     ],

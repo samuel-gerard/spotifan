@@ -2,15 +2,14 @@
 
 {% block title %}Top track!{% endblock %}
 
-
 {% block body %}
-
-<a href="{{ path('artists') }}">Top artists</a>
-
 
 {% for index,track in data.items %}
 
     <h2>#{{ index + 1 }} - {{ track.name }}</h2>
+
+    {% set img = track.album.images[2] %}
+    <img src="{{ img.url }}" alt="">
 
     <ul>
         {% for artist in track.artists %}

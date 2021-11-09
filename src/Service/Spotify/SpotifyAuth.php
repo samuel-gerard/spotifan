@@ -5,7 +5,7 @@ namespace App\Service\Spotify;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use App\Service\Spotify\SpotifyApiException;
-use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class SpotifyAuth
 {
@@ -14,18 +14,25 @@ class SpotifyAuth
     protected $redirectUri;
     protected $clientId;
     protected $clientSecret;
+    protected $client;
+    protected $session;
 
-    protected $accessToken;
-    protected $refreshToken;
-    protected $expiresAt;
-
-    public function __construct($spotifyApiTokenUrl, $spotifyApiAuthUrl, $redirectUri, $clientId, $clientSecret)
+    public function __construct(
+        $spotifyApiTokenUrl,
+        $spotifyApiAuthUrl,
+        $redirectUri,
+        $clientId,
+        $clientSecret,
+        SessionInterface $session
+     )
     {
         $this->spotifyApiTokenUrl = $spotifyApiTokenUrl;
         $this->spotifyApiAuthUrl = $spotifyApiAuthUrl;
         $this->redirectUri = $redirectUri;
         $this->clientId = $clientId;
         $this->clientSecret = $clientSecret;
+        $this->session = $session;
+        $this->client = new Client();;
     }
 
     /**
@@ -48,17 +55,14 @@ class SpotifyAuth
     /**
      * Get the acces token to make API requets.
      *
-     * @return ?string
+     * @return void
      */
-    public function generateAccessToken(string $state, string $code): ?string
+    public function generateAccessToken(string $code): void
     {
-        $client = new Client();
-
-        $session = new Session();
-        $session->start();
+        $this->session->start();
 
         try {
-            $response = $client->post(
+            $response = $this->client->post(
                 $this->spotifyApiTokenUrl,
                 [
                     'headers' => [
@@ -68,7 +72,7 @@ class SpotifyAuth
                         'Content-Length' => 0,
                     ],
                     'query' => [
-                        'redirect_uri' => 'http://127.0.0.1:8000/login/oauth',
+                        'redirect_uri' => $this->redirectUri,
                         'grant_type' => 'authorization_code',
                         'code' => $code
                     ],
@@ -90,38 +94,20 @@ class SpotifyAuth
         }
 
         $body = json_decode($response->getBody()->getContents());
-        
-        $this->accessToken = $body->access_token;
-        $this->refreshToken = $body->refresh_token;
-        $this->expiresAt = $body->expires_in;
 
-        $session->set('accessToken', $this->accessToken);
-        $session->set('refreshToken', $this->refreshToken);
-        $session->set('expiresAt', $this->expiresAt);
-
-        return true;
+        $this->session->set('accessToken', $body->access_token);
+        $this->session->set('refreshToken', $body->refresh_token);
+        $this->session->set('expiresAt', $body->expires_in);
     }
 
-    public function getAccessToken()
+    /**
+     * Refreshing the access token.
+     *
+     * @return void
+     */
+    public function refreshAccessToken(): void
     {
-        return $this->accessToken;
-    }
-
-    public function getRefreshToken()
-    {
-        return $this->refreshToken;
-    }
-
-    public function getExpiresAt()
-    {
-        return $this->expiresAt;
-    }
-
-    public function refreshAccessToken()
-    {
-        $client = new Client();
-
-        $response = $client->post(
+        $response = $this->client->post(
             $this->spotifyApiTokenUrl,
             [
                 'headers' => [
@@ -139,11 +125,12 @@ class SpotifyAuth
 
         $body = json_decode($response->getBody()->getContents());
 
-
         $this->accessToken = $body->access_token;
         $this->refreshToken = $body->refresh_token;
         $this->expiresAt = $body->expires_in;
 
-        return true;
+        $this->session->set('accessToken', $body->access_token);
+        $this->session->set('refreshToken', $body->refresh_token);
+        $this->session->set('expiresAt', $body->expires_in);
     }
 }
