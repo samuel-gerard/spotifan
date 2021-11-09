@@ -23,6 +23,19 @@ Goal is to connect to songkick API to find the concerts/shows of your favorite a
 - spotilife
 - spotifun
 
+### To do :
+- refresh token
+
+### Workflow
+- controller fait spotifyRequest->getTopTracks()
+- spotifyRequest check si auth, si non appelle authenticator, si oui fait get request
+- callback sert juste à créer 1er auth
+
+### Documentation Spotify
+- [Authorization code flow](https://developer.spotify.com/documentation/general/guides/authorization/code-flow/)
+- [All API Endpoints](https://developer.spotify.com/documentation/web-api/reference/#/)
+- [Spotify project Dashboard](https://developer.spotify.com/dashboard/)
+
 # Pages
 
 ## Menu

@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Top track!{% endblock %}
+
+{% block body %}
+
+{% for index,track in data.items %}
+
+    <h2>#{{ index + 1 }} - {{ track.name }}</h2>
+
+    {% set img = track.album.images[2] %}
+    <img src="{{ img.url }}" alt="">
+
+    <ul>
+        {% for artist in track.artists %}
+            <li>{{ artist.name }}</li>
+        {% endfor %}
+    </ul>
+
+{% endfor %}
+
+{% endblock %}

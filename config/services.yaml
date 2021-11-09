@@ -29,3 +29,11 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    App\Service\Spotify\SpotifyAuth:
+        arguments:
+            $spotifyApiTokenUrl: '%env(resolve:SPOTIFY_API_TOKEN_URL)%'
+            $spotifyApiAuthUrl: '%env(resolve:SPOTIFY_API_AUTH_URL)%'
+            $redirectUri: '%env(resolve:REDIRECT_URI)%'
+            $clientId: '%env(resolve:CLIENT_ID)%'
+            $clientSecret: '%env(resolve:CLIENT_SECRET)%'

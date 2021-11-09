@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Top artists !{% endblock %}
+
+{% block body %}
+
+{% for index,artist in data.items %}
+
+    <h2>#{{ index + 1 }} - {{ artist.name }}</h2>
+
+    {% set img = artist.images[2] %}
+    <img src="{{ img.url }}" alt="">
+
+{% endfor %}
+
+{% endblock %}
