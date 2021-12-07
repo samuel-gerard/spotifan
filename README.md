@@ -64,3 +64,7 @@ Liste event : tous les events // autour de moi :
 - page avec lien pour coller url playlist autre user (pour stats & events)
 - enregistrer event participer (db + google calendar ?)
 - exporter + partager RS tops
+
+## Inspiration
+- https://www.spotilyze.com
+- https://obscurifymusic.com
