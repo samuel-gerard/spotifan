@@ -1,16 +1,34 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Top artists !{% endblock %}
+{% block title %}Top artists{% endblock %}
 
 {% block body %}
-
-{% for index,artist in data.items %}
-
-    <h2>#{{ index + 1 }} - {{ artist.name }}</h2>
-
-    {% set img = artist.images[2] %}
-    <img src="{{ img.url }}" alt="">
-
-{% endfor %}
-
+<div class="container">
+    {% for row in data.items|batch(2) %}
+    <div class="row mt-4">
+        {% for index,artist in row %}
+        <div class="col-md-6">
+            {% set img = artist.images[0] %}
+            <div class="card flex-md-row mb-4 box-shadow h-md-250">
+                <div class="card-body d-flex flex-column align-items-start">
+                    <strong class="d-inline-block mb-2 text-primary">TOP {{ index + 1 }}</strong>
+                    <h3 class="mb-0">
+                        {{ artist.name }}
+                    </h3>
+                    <h6 class="card-subtitle mt-2 text-muted">Followers :
+                        {{ artist.followers.total|number_format(0, ',', ' ') }}</h6>
+                    <p class="card-text mb-auto text-muted mt-2">
+                        {{ artist.genres|join(', ', ' and ') }}
+                    </p>
+                    <a href="{{ artist.external_urls.spotify }}" target="_blank">Open on spotify</a>
+                </div>
+                <div class="m-2">
+                    <img class="img-thumbnail resize-thumbnail card-img-right flex-auto d-md-block" src="{{ img.url }}">
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+</div>
 {% endblock %}
