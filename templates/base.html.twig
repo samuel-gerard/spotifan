@@ -28,6 +28,10 @@
                         <a class="nav-link {% if app.request.get('_route') == 'tracks' %}active{% endif %}"
                             href="{{ path('tracks') }}">Top tracks</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if app.request.get('_route') == 'user_profile' %}active{% endif %}"
+                            href="{{ path('user_profile') }}">My profile</a>
+                    </li>
                 </ul>
                 <div class="d-flex nav-item">
                     <a class="nav-link" href="{{ path('logout') }}">Logout</a>

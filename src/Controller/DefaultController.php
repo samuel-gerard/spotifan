@@ -53,6 +53,18 @@ class DefaultController extends AbstractController
         ]);
     }
 
+    /**
+     * @Route("/me", name="user_profile")
+     */
+    public function userProfile(Request $request, SessionInterface $session): Response
+    {
+        $user = $this->spotifyRequest->get('/me');
+
+        return $this->render('default/user_profile.html.twig', [
+            'user' => $user,
+        ]);
+    }
+
     /** 
      * @Route("/login/oauth", name="callback")
      */
