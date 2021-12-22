@@ -108,6 +108,6 @@ class DefaultController extends AbstractController
     {
         $session->clear();
 
-        return $this->render('default/homepage.html.twig');
+        return $this->redirectToRoute('homepage');
     }
 }
