@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mt-4">
+                <div class="card-header">Your top tracks</div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for index,track in top_tracks.items %}
+                        <li class="list-group-item">
+                            <strong># {{ index + 1 }}</strong>
+                            {{ track.name }} -
+                            {% set artists = [] %}
+                            {% for artist in track.artists %}
+                                {% set artists = artists|merge([artist.name]) %}
+                            {% endfor %}
+                            {{ artists|join(', ', ' and ') }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    <a href="{{ path('tracks') }}" class="btn btn-primary mt-2">See more</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mt-4">
+                <div class="card-header">Your top artists</div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for index,artist in top_artists.items %}
+                        <li class="list-group-item">
+                            <strong># {{ index + 1 }}</strong> {{ artist.name }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    <a href="{{ path('artists') }}" class="btn btn-primary mt-2">See more</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
