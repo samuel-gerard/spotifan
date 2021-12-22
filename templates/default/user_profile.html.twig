@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My profile{% endblock %}
+
+{% block body %}
+<div class="container">
+    {% set image = user.images[0] %}
+    <div class="card mt-4" style="width: 20rem;">
+        <img src="{{ image.url }}" class="card-img-top">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-10">
+                    <h5 class="card-title">{{ user.display_name }}</h5>
+                </div>
+                <div class="col-md-2">
+                    <img class="resize-flag" src="https://flagpedia.net/data/flags/normal/{{ user.country|lower }}.png">
+                </div>
+            </div>
+            <span class="badge bg-primary">{{ user.product }}</span>
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">{{ user.email }}</li>
+            <li class="list-group-item">ID : {{ user.id }}</li>
+            <li class="list-group-item">Followers : {{ user.followers.total }}</li>
+        </ul>
+        <div class="card-body">
+            <a href="{{ user.href }}" class="card-link">Open on spotify</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

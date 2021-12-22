@@ -1,0 +1,17 @@
+// assets/styles/global.scss
+
+// customize some Bootstrap variables
+$primary: darken(#428bca, 20%);
+
+// the ~ allows you to reference things in node_modules
+@import "~bootstrap/scss/bootstrap";
+
+.resize-thumbnail {
+    max-width: 160px;
+    max-height: 160px;
+}
+
+.resize-flag {
+    max-width: 30px;
+    max-height: 30px;
+}

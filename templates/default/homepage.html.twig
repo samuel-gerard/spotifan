@@ -1,9 +1,16 @@
-{% block title %}HOMEPAGE SPOTIFAN{% endblock %}
-
 {% block body %}
 
-hello !
+<div class="container">
+    <h1 class="mt-4">You need to log in to see your spotify statistics !</h1>
+    <a type="button" class="btn btn-primary btn-lg" href="{{ path('login') }}">Log In With Spotify</a>
+</div>
 
-<a href="{{ path('login') }}">LOG IN</a>
+{% endblock %}
 
+{% block stylesheets %}
+    {{ encore_entry_link_tags('app') }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ encore_entry_script_tags('app') }}
 {% endblock %}

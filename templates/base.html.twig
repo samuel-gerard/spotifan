@@ -1,26 +1,57 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        
-        {% block header %}
-            <a href="{{ path('tracks') }}">Top tracks</a>
-            <a href="{{ path('artists') }}">Top artists</a>
-            <a href="{{ path('logout') }}">Logout</a>
-        {% endblock %}
 
-        {# Run `composer require symfony/webpack-encore-bundle`
-           and uncomment the following Encore helpers to start using Symfony UX #}
-        {% block stylesheets %}
-            {#{{ encore_entry_link_tags('app') }}#}
-        {% endblock %}
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Welcome!{% endblock %}</title>
 
-        {% block javascripts %}
-            {#{{ encore_entry_script_tags('app') }}#}
-        {% endblock %}
-    </head>
-    <body>
-        {% block body %}{% endblock %}
-    </body>
+    {% block header %}
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ path('dashboard') }}">Spotifan</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor02"
+                aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarColor02">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if app.request.get('_route') == 'dashboard' %}active{% endif %}"
+                            href="{{ path('dashboard') }}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if app.request.get('_route') == 'artists' %}active{% endif %}"
+                            href="{{ path('artists') }}">Top artists</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if app.request.get('_route') == 'tracks' %}active{% endif %}"
+                            href="{{ path('tracks') }}">Top tracks</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if app.request.get('_route') == 'user_profile' %}active{% endif %}"
+                            href="{{ path('user_profile') }}">My profile</a>
+                    </li>
+                </ul>
+                <div class="d-flex nav-item">
+                    <a class="nav-link" href="{{ path('logout') }}">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    {% endblock %}
+
+    {% block stylesheets %}
+    {{ encore_entry_link_tags('app') }}
+    {% endblock %}
+
+    {% block javascripts %}
+    {{ encore_entry_script_tags('app') }}
+    {% endblock %}
+</head>
+
+<body>
+    {% block body %}{% endblock %}
+</body>
+
 </html>

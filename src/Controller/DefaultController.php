@@ -39,6 +39,32 @@ class DefaultController extends AbstractController
         return $this->redirect($authorizationUri);
     }
 
+    /**
+     * @Route("/dashboard", name="dashboard")
+     */
+    public function dashboard(Request $request, SessionInterface $session): Response
+    {
+        $tracks = $this->spotifyRequest->get('/me/top/tracks', 5);
+        $artists = $this->spotifyRequest->get('/me/top/artists', 5);
+
+        return $this->render('default/dashboard.html.twig', [
+            'top_tracks' => $tracks,
+            'top_artists' => $artists,
+        ]);
+    }
+
+    /**
+     * @Route("/me", name="user_profile")
+     */
+    public function userProfile(Request $request, SessionInterface $session): Response
+    {
+        $user = $this->spotifyRequest->get('/me');
+
+        return $this->render('default/user_profile.html.twig', [
+            'user' => $user,
+        ]);
+    }
+
     /** 
      * @Route("/login/oauth", name="callback")
      */
@@ -48,7 +74,7 @@ class DefaultController extends AbstractController
 
         $this->spotifyAuthenticator->generateAccessToken($code);
 
-        return $this->redirectToRoute('tracks');
+        return $this->redirectToRoute('dashboard');
     }
 
     /**
@@ -82,6 +108,6 @@ class DefaultController extends AbstractController
     {
         $session->clear();
 
-        return $this->render('default/homepage.html.twig');
+        return $this->redirectToRoute('homepage');
     }
 }

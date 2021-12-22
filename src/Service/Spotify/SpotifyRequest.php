@@ -22,7 +22,7 @@ class SpotifyRequest
     /**
      * Perform GET request on spotify API.
      */
-    public function get(string $endPoint)
+    public function get(string $endPoint, int $limit = 20)
     {
         /* TO DO : Check if token is expired. If yes, refresh access token. */
 
@@ -34,6 +34,9 @@ class SpotifyRequest
                         'Authorization' => 'Bearer '.$this->session->get('accessToken'),
                         'Accepts' => 'application/json',
                         'Content-Type' => 'application/json',
+                    ],
+                    'query' => [
+                        'limit' => $limit,
                     ],
                 ]
             );
