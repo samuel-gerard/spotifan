@@ -3,12 +3,12 @@
 namespace App\Service\Spotify;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
+use App\Service\Spotify\SpotifyApiException;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class SpotifyRequest
 {
-    private const SPOTIFY_API_URL = 'https://api.spotify.com/v1';
+    private const SPOTIFY_BASE_URL = 'https://api.spotify.com/v1';
 
     protected $client;
     protected $session;
@@ -20,43 +20,133 @@ class SpotifyRequest
     }
 
     /**
-     * Perform GET request on spotify API.
+     * Send a request to the Spotify API & refresh the access token if expired.
+     *
+     * @param string $method The HTTP method to use.
+     * @param string $uri The URI of the request.
+     * @param array $parameters Query string parameters of HTTP body, optional.
+     *
+     * @throws SpotifyApiException
+     *
+     * @return void The response of the body.
      */
-    public function get(string $endPoint, int $limit = 20)
+    public function send(string $method, string $uri, array $parameters = []): array
     {
-        /* TO DO : Check if token is expired. If yes, refresh access token. */
+        $method = strtoupper($method);
+
+        $url = self::SPOTIFY_BASE_URL . $uri;
+        $headers = $this->buildHeaders();
 
         try {
-            $response = $this->client->get(
-                self::SPOTIFY_API_URL.$endPoint,
-                [
-                    'headers' => [
-                        'Authorization' => 'Bearer '.$this->session->get('accessToken'),
-                        'Accepts' => 'application/json',
-                        'Content-Type' => 'application/json',
-                    ],
-                    'query' => [
-                        'limit' => $limit,
-                    ],
-                ]
-            );
-        } catch (RequestException $e) {
-            $errorResponse = json_decode($e->getResponse()->getBody()->getContents());
-            $status = $errorResponse->error->status;
-            $message = $errorResponse->error->message;
+            switch ($method) {
+                case 'GET':
+                    $requestResponse = $this->client->get($url, [
+                            'headers' => $headers,
+                            'query' => $parameters,
+                        ]);
+                    break;
+            }
+        } catch (SpotifyApiException $e) {
+            if ($e->hasExpiredToken()) {
+                /* @TODO refresh token + retry */
+            } elseif ($e->isRateLimited()) {
+                /* @TODO sleep + retry */
+            }
 
-            throw new SpotifyApiException($message, $status, $errorResponse);
+            throw $e;
         }
 
+        $statusCode = $requestResponse->getStatusCode();
+
+        $body = json_decode($requestResponse->getBody()->getContents());
+
+        if ($statusCode >= 400) {
+            $this->handleResponseError($body, $requestResponse);
+        }
+
+        $response = [
+            'body' => $body,
+            'status' => $statusCode,
+            'url' => $url
+        ];
+
+        return $response;
+    }
+
+    /**
+     * Return headers parameters.
+     *
+     * @return array
+     */
+    public function buildHeaders(): array
+    {
+        $accessToken = $this->session->get('accessToken');
+
+        /* 
+        BQC0GzuMUCjjYjb3cFtlJxAJz1RFdeQ32_IopIMevdLf1QD8-EoLuOC7-mi2FVczF7xSi0MzVq_IqZwSqDoWQv8osSrcOwVw234nOLiZThvZZFROe6vp4nz9Nkm_rgFDWuljdgbpk2tD9bsHucdCGy5K7aLr37Rhs0Q
+        BQAbQXg_gR-xOvnYh_82eQNEedsFTtADOL1bUMEwcNpK79U3ztgqbeCGURqwC21RFA7hDRDu5LfOCPP8tpJ4DHAVI5MDmDNl8HUsrMYMRA4u218cKXtY6hUExex-D3WZl602BRpKsZ3q9Fh5-HHdJ2GMK1EBN6CkSR8
+        */
+
+        return [
+            'Authorization' => 'Bearer ' . $accessToken,
+            'Accepts' => 'application/json',
+            'Content-Type' => 'application/json',
+        ];
+    }
+
+    public function handleResponseError($body, $response)
+    {
+        $message = 'Error when GET request';
         $statusCode = $response->getStatusCode();
 
-        if (200 !== $statusCode) {
-            $message = 'Error when GET request';
-            throw new SpotifyApiException($message, $statusCode);
-        }
+        throw new SpotifyApiException($message, $statusCode);
+    }
 
-        $body = json_decode($response->getBody()->getContents());
+    /**
+     * Get the current user top tracks or top artists.
+     * https://developer.spotify.com/documentation/web-api/reference/#/operations/get-users-top-artists-and-tracks
+     *
+     * @param string $type The user top type. (artists|tracks)
+     * @param array $options Query string parameters (limit, offset, time_range).
+     * @return object List of requested top entities.
+     */
+    public function getUserTop(string $type, array $options = []): object
+    {
+        $uri = '/me/top/' . $type;
 
-        return $body;
+        $response = $this->send('GET', $uri, $options);
+        
+        return $response['body'];
+    }
+
+    /**
+     * Get user profile informations.
+     * https://developer.spotify.com/documentation/web-api/reference/#/operations/get-users-profile
+     *
+     * @param string $userId The user identifier.
+     * @return object List of requested user informations.
+     */
+    public function getUserProfile(string $userId): object
+    {
+        $uri = '/users/' . $userId;
+
+        $response = $this->send('GET', $uri);
+
+        return $response['body'];
+    }
+
+    /**
+     * Get current user profile informations.
+     * https://developer.spotify.com/documentation/web-api/reference/#/operations/get-current-users-profile
+     *
+     * @return object List of current user informations.
+     */
+    public function getMeProfile(): object
+    {
+        $uri = '/me';
+
+        $response = $this->send('GET', $uri);
+
+        return $response['body'];
     }
 }

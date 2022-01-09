@@ -22,14 +22,6 @@ class DefaultController extends AbstractController
     }
 
     /**
-     * @Route("/", name="homepage")
-     */
-    public function homepage(): Response
-    {
-        return $this->render('default/homepage.html.twig');
-    }
-
-    /**
      * @Route("/login", name="login")
      */
     public function login(): Response
@@ -40,12 +32,42 @@ class DefaultController extends AbstractController
     }
 
     /**
+     * @Route("/logout", name="logout")
+     */
+    public function logout(SessionInterface $session): Response
+    {
+        $session->clear();
+
+        return $this->redirectToRoute('homepage');
+    }
+
+    /** 
+     * @Route("/login/oauth", name="callback")
+     */
+    public function callback(Request $request): Response
+    {
+        $code = $request->query->get('code');
+
+        $this->spotifyAuthenticator->generateAccessToken($code);
+
+        return $this->redirectToRoute('dashboard');
+    }
+
+    /**
+     * @Route("/", name="homepage")
+     */
+    public function homepage(): Response
+    {
+        return $this->render('default/homepage.html.twig');
+    }
+
+    /**
      * @Route("/dashboard", name="dashboard")
      */
-    public function dashboard(Request $request, SessionInterface $session): Response
+    public function dashboard(): Response
     {
-        $tracks = $this->spotifyRequest->get('/me/top/tracks', 5);
-        $artists = $this->spotifyRequest->get('/me/top/artists', 5);
+        $tracks = $this->spotifyRequest->getUserTop('tracks', ['limit' => 5]);
+        $artists = $this->spotifyRequest->getUserTop('artists', ['limit' => 5]);
 
         return $this->render('default/dashboard.html.twig', [
             'top_tracks' => $tracks,
@@ -56,33 +78,21 @@ class DefaultController extends AbstractController
     /**
      * @Route("/me", name="user_profile")
      */
-    public function userProfile(Request $request, SessionInterface $session): Response
+    public function userProfile(): Response
     {
-        $user = $this->spotifyRequest->get('/me');
+        $user = $this->spotifyRequest->getMeProfile();
 
         return $this->render('default/user_profile.html.twig', [
             'user' => $user,
         ]);
     }
 
-    /** 
-     * @Route("/login/oauth", name="callback")
-     */
-    public function callback(Request $request, SessionInterface $session): Response
-    {
-        $code = $request->query->get('code');
-
-        $this->spotifyAuthenticator->generateAccessToken($code);
-
-        return $this->redirectToRoute('dashboard');
-    }
-
     /**
      * @Route("/tracks", name="tracks")
      */
-    public function getTopTracks(Request $request, SessionInterface $session): Response
+    public function getTopTracks(): Response
     {
-        $data = $this->spotifyRequest->get('/me/top/tracks');
+        $data = $this->spotifyRequest->getUserTop('tracks');
 
         return $this->render('default/tracks.html.twig', [
             'data' => $data
@@ -92,22 +102,12 @@ class DefaultController extends AbstractController
     /**
      * @Route("/artists", name="artists")
      */
-    public function getTopArtists(Request $request, SessionInterface $session): Response
+    public function getTopArtists(): Response
     {
-        $data = $this->spotifyRequest->get('/me/top/artists');
+        $data = $this->spotifyRequest->getUserTop('artists');
 
         return $this->render('default/artists.html.twig', [
             'data' => $data
         ]);
-    }
-
-    /**
-     * @Route("/logout", name="logout")
-     */
-    public function logout(Request $request, SessionInterface $session): Response
-    {
-        $session->clear();
-
-        return $this->redirectToRoute('homepage');
     }
 }

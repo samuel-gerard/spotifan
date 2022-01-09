@@ -8,18 +8,22 @@ class SpotifyApiException extends Exception
 {
     protected $apiResponse;
 
-    public function __construct($message = null, $code = 0, $apiResponse = null, Exception $previous = null)
-    {
-        parent::__construct($message, $code, $previous);
+    public const TOKEN_EXPIRED = 'The access token expired';
+    public const RATE_LIMIT_STATUS = 429;
 
-        $this->apiResponse = $apiResponse;
+    /* 
+    * Check if the exception is about expired token.
+    */
+    public function hasExpiredToken(): bool
+    {
+        return $this->getMessage() === self::TOKEN_EXPIRED;
     }
 
-    /**
-     * Get the API Response.
-     */
-    public function getApiResponse()
+    /* 
+    * Check if the exception is about rate limite.
+    */
+    public function isRateLimited(): bool
     {
-        return $this->apiResponse;
+        return $this->getCode() === self::RATE_LIMIT_STATUS;
     }
 }
