@@ -24,15 +24,14 @@ class SpotifyAuth
         $clientId,
         $clientSecret,
         SessionInterface $session
-     )
-    {
+    ) {
         $this->spotifyApiTokenUrl = $spotifyApiTokenUrl;
         $this->spotifyApiAuthUrl = $spotifyApiAuthUrl;
         $this->redirectUri = $redirectUri;
         $this->clientId = $clientId;
         $this->clientSecret = $clientSecret;
         $this->session = $session;
-        $this->client = new Client();;
+        $this->client = new Client();
     }
 
     /**
@@ -65,12 +64,7 @@ class SpotifyAuth
             $response = $this->client->post(
                 $this->spotifyApiTokenUrl,
                 [
-                    'headers' => [
-                        'Authorization' => 'Basic '.base64_encode($this->clientId.':'.$this->clientSecret),
-                        'Accepts' => 'application/json',
-                        'Content-Type' => 'application/x-www-form-urlencoded',
-                        'Content-Length' => 0,
-                    ],
+                    'headers' => $this->buildHeaders(),
                     'query' => [
                         'redirect_uri' => $this->redirectUri,
                         'grant_type' => 'authorization_code',
@@ -97,25 +91,19 @@ class SpotifyAuth
 
         $this->session->set('accessToken', $body->access_token);
         $this->session->set('refreshToken', $body->refresh_token);
-        $this->session->set('expiresAt', $body->expires_in);
     }
 
     /**
      * Refreshing the access token.
      *
-     * @return void
+     * @return bool
      */
-    public function refreshAccessToken(): void
+    public function refreshAccessToken(): bool
     {
         $response = $this->client->post(
             $this->spotifyApiTokenUrl,
             [
-                'headers' => [
-                    'Authorization' => 'Basic '.base64_encode($this->clientId.':'.$this->clientSecret),
-                    'Accepts' => 'application/json',
-                    'Content-Type' => 'application/x-www-form-urlencoded',
-                    'Content-Length' => 0,
-                ],
+                'headers' => $this->buildHeaders(),
                 'query' => [
                     'grant_type' => 'refresh_token',
                     'refresh_token' => $this->refreshToken
@@ -125,8 +113,28 @@ class SpotifyAuth
 
         $body = json_decode($response->getBody()->getContents());
 
-        $this->session->set('accessToken', $body->access_token);
-        $this->session->set('refreshToken', $body->refresh_token);
-        $this->session->set('expiresAt', $body->expires_in);
+        if (isset($body->access_token)) {
+            $this->session->set('accessToken', $body->access_token);
+            $this->session->set('refreshToken', $body->refresh_token);
+            
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Build headers parameters for access or refresh token query.
+     *
+     * @return array
+     */
+    public function buildHeaders(): array
+    {
+        return [
+            'Authorization' => 'Basic '.base64_encode($this->clientId . ':' . $this->clientSecret),
+            'Accepts' => 'application/json',
+            'Content-Type' => 'application/x-www-form-urlencoded',
+            'Content-Length' => 0,
+        ];
     }
 }
