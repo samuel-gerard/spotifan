@@ -12,7 +12,7 @@ class SpotifyApiAuthException extends Exception
     public const INVALID_CLIENT_SECRET = 'Invalid client secret';
     public const INVALID_REFRESH_TOKEN = 'Invalid refresh token';
 
-    /* 
+    /*
     * Check if the exception is about bad client id or secret.
     */
     public function hasInvalidCredentials(): bool
@@ -23,7 +23,7 @@ class SpotifyApiAuthException extends Exception
         ]);
     }
 
-    /* 
+    /*
     * Check if the exception is about bad refresh token.
     */
     public function hasInvalidRefreshToken(): bool

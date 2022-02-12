@@ -4,6 +4,7 @@ namespace App\Service\Spotify;
 
 use GuzzleHttp\Client;
 use App\Service\Spotify\SpotifyApiException;
+use Exception;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class SpotifyRequest
@@ -12,6 +13,7 @@ class SpotifyRequest
 
     protected $client;
     protected $session;
+    protected $spotifyAuthenticator;
 
     public function __construct(SessionInterface $session)
     {
@@ -49,6 +51,12 @@ class SpotifyRequest
         } catch (SpotifyApiException $e) {
             if ($e->hasExpiredToken()) {
                 /* @TODO refresh token + retry */
+                $result = $this->spotifyAuthenticator->refreshAccessToken();
+
+                if ($result) {
+                    die;
+                    $this->send($method, $uri, $parameters);
+                }
             } elseif ($e->isRateLimited()) {
                 /* @TODO sleep + retry */
             }
@@ -82,11 +90,6 @@ class SpotifyRequest
     {
         $accessToken = $this->session->get('accessToken');
 
-        /* 
-        BQC0GzuMUCjjYjb3cFtlJxAJz1RFdeQ32_IopIMevdLf1QD8-EoLuOC7-mi2FVczF7xSi0MzVq_IqZwSqDoWQv8osSrcOwVw234nOLiZThvZZFROe6vp4nz9Nkm_rgFDWuljdgbpk2tD9bsHucdCGy5K7aLr37Rhs0Q
-        BQAbQXg_gR-xOvnYh_82eQNEedsFTtADOL1bUMEwcNpK79U3ztgqbeCGURqwC21RFA7hDRDu5LfOCPP8tpJ4DHAVI5MDmDNl8HUsrMYMRA4u218cKXtY6hUExex-D3WZl602BRpKsZ3q9Fh5-HHdJ2GMK1EBN6CkSR8
-        */
-
         return [
             'Authorization' => 'Bearer ' . $accessToken,
             'Accepts' => 'application/json',
@@ -100,6 +103,11 @@ class SpotifyRequest
         $statusCode = $response->getStatusCode();
 
         throw new SpotifyApiException($message, $statusCode);
+    }
+
+    public function setAuthenticator(SpotifyAuth $spotifyAuthenticator)
+    {
+        $this->spotifyAuthenticator = $spotifyAuthenticator;
     }
 
     /**

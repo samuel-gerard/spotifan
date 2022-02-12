@@ -32,7 +32,6 @@ class SpotifyAuth
         $this->clientSecret = $clientSecret;
         $this->session = $session;
         $this->client = new Client();
-        ;
     }
 
     /**
@@ -97,9 +96,9 @@ class SpotifyAuth
     /**
      * Refreshing the access token.
      *
-     * @return void
+     * @return bool
      */
-    public function refreshAccessToken(): void
+    public function refreshAccessToken(): bool
     {
         $response = $this->client->post(
             $this->spotifyApiTokenUrl,
@@ -114,8 +113,14 @@ class SpotifyAuth
 
         $body = json_decode($response->getBody()->getContents());
 
-        $this->session->set('accessToken', $body->access_token);
-        $this->session->set('refreshToken', $body->refresh_token);
+        if (isset($body->access_token)) {
+            $this->session->set('accessToken', $body->access_token);
+            $this->session->set('refreshToken', $body->refresh_token);
+            
+            return true;
+        }
+
+        return false;
     }
 
     /**

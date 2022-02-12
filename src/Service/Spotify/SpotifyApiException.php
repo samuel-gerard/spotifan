@@ -11,7 +11,7 @@ class SpotifyApiException extends Exception
     public const TOKEN_EXPIRED = 'The access token expired';
     public const RATE_LIMIT_STATUS = 429;
 
-    /* 
+    /*
     * Check if the exception is about expired token.
     */
     public function hasExpiredToken(): bool
@@ -19,7 +19,7 @@ class SpotifyApiException extends Exception
         return $this->getMessage() === self::TOKEN_EXPIRED;
     }
 
-    /* 
+    /*
     * Check if the exception is about rate limite.
     */
     public function isRateLimited(): bool

@@ -48,6 +48,7 @@ class DefaultController extends AbstractController
     {
         $code = $request->query->get('code');
 
+        $this->spotifyRequest->setAuthenticator($this->spotifyAuthenticator);
         $this->spotifyAuthenticator->generateAccessToken($code);
 
         return $this->redirectToRoute('dashboard');
